@@ -11,59 +11,58 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
 
+import detector
+
 
 COCO_LABEL_PATH = os.path.join('COCO_datasets', 'coco_categories.json')
 COCO_SUPER_LABEL_PATH = os.path.join('COCO_datasets', 'coco_super_categories.json')
 MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8.tar.gz'
 
 
-class Object_Detector:
+class Object_Detector(detector.Detector):
     SCORE_THRESHOLD = 0.5
     IMAGE_AREA = 1024 * 1024
 
     def __init__(self, labels_path, super_label_path, model_url):
         # load model
-        self.model_name = None
-        self.model = None
-        self.download_model(model_url)
-        self.load_model()
+        super().__init__(model_url=model_url)
         self.dict_labels = Object_Detector.get_labels_from_json(labels_path)
         # import COCO labels
         self.dict_label_name_by_index = dict((v, k) for k, v in self.dict_labels.items())
         self.dict_super_labels = Object_Detector.get_labels_from_json(super_label_path)
 
-    @staticmethod
-    def get_labels_from_json(json_file_path):
-        """
-        import json file as dictionary
-        input: str, jason file path
-        output: dictionary
-        """
-        with open(json_file_path, 'r') as json_file:
-            labels = json.load(json_file)
-            return labels
+    # @staticmethod
+    # def get_labels_from_json(json_file_path):
+    #     """
+    #     import json file as dictionary
+    #     input: str, jason file path
+    #     output: dictionary
+    #     """
+    #     with open(json_file_path, 'r') as json_file:
+    #         labels = json.load(json_file)
+    #         return labels
 
-    def download_model(self, model_url):
-        """
-        download a pre-trained model from url, if does not exit in the models folder
-        """
-        file_name = os.path.basename(model_url)
-        self.model_name = file_name[:file_name.index(".")]
-        download_dir = os.path.join('models')
-        get_file(fname=file_name,
-                 origin=model_url,
-                 cache_dir=download_dir,
-                 cache_subdir="checkpoints",
-                 extract=True)
+    # def download_model(self, model_url):
+    #     """
+    #     download a pre-trained model from url, if does not exit in the models folder
+    #     """
+    #     file_name = os.path.basename(model_url)
+    #     self.model_name = file_name[:file_name.index(".")]
+    #     download_dir = os.path.join('models')
+    #     get_file(fname=file_name,
+    #              origin=model_url,
+    #              cache_dir=download_dir,
+    #              cache_subdir="checkpoints",
+    #              extract=True)
 
-    def load_model(self):
-        """
-        load the local pretrained model in the models folder
-        """
-        print("Model Loading:", self.model_name)
-        tf.keras.backend.clear_session()
-        self.model = tf.saved_model.load(os.path.join('models', 'checkpoints', self.model_name, 'saved_model'))
-        print("model load successfully")
+    # def load_model(self):
+    #     """
+    #     load the local pretrained model in the models folder
+    #     """
+    #     print("Model Loading:", self.model_name)
+    #     tf.keras.backend.clear_session()
+    #     self.model = tf.saved_model.load(os.path.join('models', 'checkpoints', self.model_name, 'saved_model'))
+    #     print("model load successfully")
 
     def detect_image(self, image_path):
         """
@@ -74,8 +73,8 @@ class Object_Detector:
         output: dictionary, each key<str> is the object class name, value<list> contains [ confidence_score, area_ratio]
         """
         # import image
+        self.show_img_with_path(image_path)
         image = plt.imread(image_path)
-        self.show_img(image)
         # resizing
         resized_image = tf.image.resize(
             images=image,
@@ -84,8 +83,7 @@ class Object_Detector:
             preserve_aspect_ratio=False,
             antialias=False
         )
-        self.show_img(resized_image)
-        print(type(resized_image))
+        self.show_img(np.asarray(resized_image))
 
         # processing
         image_array = np.asarray(resized_image)
@@ -128,14 +126,15 @@ class Object_Detector:
         """
         return list(map(self.detect_image, image_paths))
 
-    @staticmethod
-    def show_img(image):
-        """
-        show numpy array as image with pyplot
-        """
-        plt.imshow(np.array(image, dtype=int))
-        plt.show()
-        plt.close()
+    # @staticmethod
+    # def show_img(image_path):
+    #     """
+    #     show numpy array as image with pyplot
+    #     """
+    #     image = plt.imread(image_path)
+    #     plt.imshow(np.array(image, dtype=int))
+    #     plt.show()
+    #     plt.close()
 
     @staticmethod
     def cal_bbox_area_ratio(bbox_array):
