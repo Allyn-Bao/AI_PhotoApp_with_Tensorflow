@@ -15,10 +15,15 @@ class Detector:
     model = None
 
     def __init__(self, model_url=None, model_path=None):
+        # downloaded models from model zoo
         if model_url is not None and model_path is None:
             self.download_model(model_url)
             model_path = os.path.join('models', 'checkpoints', self.model_name, 'saved_model')
-        self.load_model(model_path)
+            self.load_downloaded_model(model_path)
+        # saved keras models
+        elif model_url is None and os.path.splitext(model_path)[1] == ".h5":
+            self.model_name = os.path.basename(model_path)
+            self.load_saved_model(model_path)
 
     @staticmethod
     def get_labels_from_json(json_file_path):
@@ -33,7 +38,7 @@ class Detector:
 
     def download_model(self, model_url):
         """
-        download a pre-trained model from url, if does not exit in the models folder
+        download a pre-trained model from url, if it does not exit in the models folder
         """
         file_name = os.path.basename(model_url)
         self.model_name = file_name[:file_name.index(".")]
@@ -44,13 +49,22 @@ class Detector:
                  cache_subdir="checkpoints",
                  extract=True)
 
-    def load_model(self, model_path):
+    def load_downloaded_model(self, model_path):
         """
-        load the local pretrained model in the models folder
+        load the local pretrained model downloaded from model zoo in the models folder
         """
         print("Model Loading:", self.model_name)
         tf.keras.backend.clear_session()
         self.model = tf.saved_model.load(model_path)
+        print("model load successfully")
+
+    def load_saved_model(self, model_path):
+        """
+        load saved keras model created locally in .h5 format
+        """
+        print("Model Loading", self.model_name)
+        tf.keras.backend.clear_session()
+        self.model = tf.keras.models.load_model(model_path)
         print("model load successfully")
 
     @staticmethod

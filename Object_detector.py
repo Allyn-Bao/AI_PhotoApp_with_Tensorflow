@@ -31,39 +31,6 @@ class Object_Detector(detector.Detector):
         self.dict_label_name_by_index = dict((v, k) for k, v in self.dict_labels.items())
         self.dict_super_labels = Object_Detector.get_labels_from_json(super_label_path)
 
-    # @staticmethod
-    # def get_labels_from_json(json_file_path):
-    #     """
-    #     import json file as dictionary
-    #     input: str, jason file path
-    #     output: dictionary
-    #     """
-    #     with open(json_file_path, 'r') as json_file:
-    #         labels = json.load(json_file)
-    #         return labels
-
-    # def download_model(self, model_url):
-    #     """
-    #     download a pre-trained model from url, if does not exit in the models folder
-    #     """
-    #     file_name = os.path.basename(model_url)
-    #     self.model_name = file_name[:file_name.index(".")]
-    #     download_dir = os.path.join('models')
-    #     get_file(fname=file_name,
-    #              origin=model_url,
-    #              cache_dir=download_dir,
-    #              cache_subdir="checkpoints",
-    #              extract=True)
-
-    # def load_model(self):
-    #     """
-    #     load the local pretrained model in the models folder
-    #     """
-    #     print("Model Loading:", self.model_name)
-    #     tf.keras.backend.clear_session()
-    #     self.model = tf.saved_model.load(os.path.join('models', 'checkpoints', self.model_name, 'saved_model'))
-    #     print("model load successfully")
-
     def detect_image(self, image_path):
         """
         detect objects in an image given an image path,
@@ -124,17 +91,11 @@ class Object_Detector(detector.Detector):
                                 each dict elements in the list contains object info for one image
                 format: example for a single image: [ {class_name: [score, area_ratio]}, ... ]
         """
-        return list(map(self.detect_image, image_paths))
-
-    # @staticmethod
-    # def show_img(image_path):
-    #     """
-    #     show numpy array as image with pyplot
-    #     """
-    #     image = plt.imread(image_path)
-    #     plt.imshow(np.array(image, dtype=int))
-    #     plt.show()
-    #     plt.close()
+        detections = {}
+        for image_path in image_paths:
+            detection = self.detect_image(image_path)
+            detections[image_path] = detection
+        return detections
 
     @staticmethod
     def cal_bbox_area_ratio(bbox_array):
