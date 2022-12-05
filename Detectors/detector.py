@@ -21,7 +21,7 @@ class Detector:
         # downloaded models from model zoo
         if model_url is not None and model_path is None:
             self.download_model(model_url)
-            model_path = os.path.join('models', 'checkpoints', self.model_name, 'saved_model')
+            model_path = os.path.join('..', 'Detectors', 'models', 'checkpoints', self.model_name, 'saved_model')
             self.load_downloaded_model(model_path)
         # saved keras models
         elif model_url is None and model_path is not None and os.path.splitext(model_path)[1] == ".h5":
@@ -45,7 +45,7 @@ class Detector:
         """
         file_name = os.path.basename(model_url)
         self.model_name = file_name[:file_name.index(".")]
-        download_dir = os.path.join('models')
+        download_dir = os.path.join('..', 'Detectors', 'models')
         get_file(fname=file_name,
                  origin=model_url,
                  cache_dir=download_dir,

@@ -7,15 +7,15 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-import detector
+from Detectors.detector import Detector
 
 
-COCO_LABEL_PATH = os.path.join('COCO_datasets', 'coco_categories.json')
-COCO_SUPER_LABEL_PATH = os.path.join('COCO_datasets', 'coco_super_categories.json')
+COCO_LABEL_PATH = os.path.join('..', 'Detectors', 'COCO_datasets', 'coco_categories.json')
+COCO_SUPER_LABEL_PATH = os.path.join('..', 'Detectors', 'COCO_datasets', 'coco_super_categories.json')
 MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8.tar.gz'
 
 
-class Object_Detector(detector.Detector):
+class Object_Detector(Detector):
     SCORE_THRESHOLD = 0.5
     IMAGE_AREA = 1024 * 1024
 

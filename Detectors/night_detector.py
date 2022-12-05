@@ -1,10 +1,10 @@
 import os
-import detector
+from Detectors.detector import Detector
 
 
-class Night_Detector(detector.Detector):
+class Night_Detector(Detector):
     IMAGE_SIZE = 244
-    MODEL_PATH = os.path.join('models', 'night_recognition_basic_v1.h5')
+    MODEL_PATH = os.path.join('..', 'Detectors', 'models', 'night_recognition_basic_v1.h5')
     CLASS_NAME = ['day', 'night']
 
     def __init__(self):

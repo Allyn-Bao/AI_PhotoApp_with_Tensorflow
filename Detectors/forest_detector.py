@@ -1,10 +1,10 @@
 import os
-import detector
+from Detectors.detector import Detector
 
 
-class Forest_Detector(detector.Detector):
+class Forest_Detector(Detector):
     IMAGE_SIZE = 244
-    MODEL_PATH = os.path.join('models', 'forest_recognition_basic_v1.h5')
+    MODEL_PATH = os.path.join('..', 'Detectors', 'models', 'forest_recognition_basic_v1.h5')
     CLASS_NAME = ['forest', 'not forest']
 
     def __init__(self):

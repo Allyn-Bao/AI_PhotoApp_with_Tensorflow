@@ -1,10 +1,10 @@
 import os
-import detector
+from Detectors.detector import Detector
 
 
-class Building_Detector(detector.Detector):
+class Building_Detector(Detector):
     IMAGE_SIZE = 244
-    MODEL_PATH = os.path.join('models', 'building_recognition_transf_v1.h5')
+    MODEL_PATH = os.path.join('..', 'Detectors', 'models', 'building_recognition_transf_v1.h5')
     CLASS_NAME = ['building', 'not building']
 
     def __init__(self):

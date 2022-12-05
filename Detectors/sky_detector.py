@@ -1,10 +1,10 @@
 import os
-import detector
+from Detectors.detector import Detector
 
 
-class Sky_Detector(detector.Detector):
+class Sky_Detector(Detector):
     IMAGE_SIZE = 244
-    MODEL_PATH = os.path.join('models', 'sky_recognition_basic_v2.h5')
+    MODEL_PATH = os.path.join('..', 'Detectors', 'models', 'sky_recognition_basic_v2.h5')
     CLASS_NAMES = ['not sky', 'sky', 'sunset']
 
     def __init__(self):

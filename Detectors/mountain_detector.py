@@ -1,10 +1,10 @@
 import os
-import detector
+from Detectors.detector import Detector
 
 
-class Mountain_Detector(detector.Detector):
+class Mountain_Detector(Detector):
     IMAGE_SIZE = 244
-    MODEL_PATH = os.path.join('models', 'mountain_recognition_basic_v1.h5')
+    MODEL_PATH = os.path.join('..', 'Detectors', 'models', 'mountain_recognition_basic_v1.h5')
     CLASS_NAME = ['mountain', 'not mountain']
 
     def __init__(self):
