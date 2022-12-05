@@ -2,27 +2,28 @@ import tensorflow as tf
 import os
 
 # detector classes
-from detector import Detector
-from Object_detector import Object_Detector
-from sky_detector import Sky_Detector
-from mountain_detector import Mountain_Detector
-from forest_detector import Forest_Detector
-from building_detector import Building_Detector
-from night_detector import Night_Detector
+from Detectors.detector import Detector
+from Detectors.object_detector import Object_Detector
+from Detectors.sky_detector import Sky_Detector
+from Detectors.mountain_detector import Mountain_Detector
+from Detectors.forest_detector import Forest_Detector
+from Detectors.building_detector import Building_Detector
+from Detectors.night_detector import Night_Detector
 
 
 class Image_classifier(Detector):
 
     # for object detection
-    COCO_LABEL_PATH = os.path.join('COCO_datasets', 'coco_categories.json')
-    COCO_SUPER_LABEL_PATH = os.path.join('COCO_datasets', 'coco_super_categories.json')
+    COCO_LABEL_PATH = os.path.join('..', 'Detectors', 'COCO_datasets', 'coco_categories.json')
+    COCO_SUPER_LABEL_PATH = os.path.join('..', 'Detectors', 'COCO_datasets', 'coco_super_categories.json')
     OD_MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8.tar.gz'
-
-    # all classes
-    ALBUM_TAGS = ['Portrait', 'Pet', 'Sunset', 'Nature', 'Urban', 'Night']
 
     # minimum confidence threshold on a prediction
     THRESHOLD = 0.7
+
+    # albums
+    ALBUMS = ["portraits", "pets", "cars", "interior",
+              "food", "nature", "urban", "sunset", "night"]
 
     def __init__(self):
         super().__init__()
@@ -37,8 +38,10 @@ class Image_classifier(Detector):
             Building_Detector(),
             Night_Detector()
         ]
-        # COCO dataset dict
+        # COCO dataset
         self.coco_super_class_dict = Image_classifier.get_labels_from_json(self.COCO_SUPER_LABEL_PATH)
+        self.coco_class_list = list(dict(Image_classifier.get_labels_from_json(self.COCO_LABEL_PATH)).keys())
+        self.coco_super_class_list = list(dict(self.coco_super_class_dict).keys())
 
     def classify_image(self, image):
         """
@@ -76,37 +79,40 @@ class Image_classifier(Detector):
         labels = Image_classifier.filter_label_negation(labels)
         # toggle labels: labels assume until proven otherwise
         is_nature = "building" not in labels
-        is_urban = False
+        is_urban = not is_nature
+        is_interior = False
         # album class
         album = set()
         for key, value in objects[0].items():
             super_class = self.get_coco_super_class(key)
             # portrait: includes "person" and occupied area larger than 0.2
             if key == "person" and value[1] > 0.25:
-                album.add("portrait")
+                album.add("portraits")
             # pets
             elif key == "dog" or key == "cat" and value[1] > 0.25:
                 album.add("pets")
             # cars
             if key == "car" and value[1] > 0.3:
-                album.add("car")
+                album.add("cars")
             # interior
             if super_class == "furniture" or super_class == "appliance":
-                album.add("interior")
+                is_interior = True
             # food
             if super_class == "food" or super_class == "kitchen":
                 album.add("food")
-            # urban
-            if super_class == "outdoor":
-                is_nature = False
-                is_urban = True
-        if is_nature:
+        # nature
+        if is_nature and ("forest" in labels or "mountain" in labels):
             album.add("nature")
-        if is_urban or "building" in labels:
+        # urban
+        if is_urban:
             album.add("urban")
+        elif is_interior:
+            album.add("interior")
+        # sunset
         if "sunset" in labels:
             album.add("sunset")
-        if "night" in labels:
+        # night
+        elif "night" in labels:
             album.add("night")
         # objects
         objects_list = list(objects[0].keys()) + labels
@@ -117,14 +123,13 @@ class Image_classifier(Detector):
         for image_path in images_paths:
             image = Image_classifier.import_image_from_path(image_path)
 
-            labels, objects = self.label_image(image)
-            detector_dict[image_path] = [labels, objects]
+            albums, objects = self.label_image(image)
+            detector_dict[image_path] = [albums, objects]
 
             # log image
-            self.show_img(image, "labels:" + ", ".join(labels) + "\nobjects" + ", ".join(objects))
+            self.show_img(image, "labels:" + ", ".join(albums) + "\nobjects" + ", ".join(objects))
 
         return detector_dict
-
 
     @staticmethod
     def filter_label_negation(labels):
