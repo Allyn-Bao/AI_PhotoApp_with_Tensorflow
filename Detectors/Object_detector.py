@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import detector
 
 
-COCO_LABEL_PATH = os.path.join('Detectors', 'COCO_datasets', 'coco_categories.json')
-COCO_SUPER_LABEL_PATH = os.path.join('Detectors', 'COCO_datasets', 'coco_super_categories.json')
+COCO_LABEL_PATH = os.path.join('COCO_datasets', 'coco_categories.json')
+COCO_SUPER_LABEL_PATH = os.path.join('COCO_datasets', 'coco_super_categories.json')
 MODEL_URL = 'http://download.tensorflow.org/models/object_detection/tf2/20200711/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8.tar.gz'
 
 
@@ -27,17 +27,14 @@ class Object_Detector(detector.Detector):
         self.dict_label_name_by_index = dict((v, k) for k, v in self.dict_labels.items())
         self.dict_super_labels = Object_Detector.get_labels_from_json(super_label_path)
 
-    def detect_image(self, image_path):
+    def detect_image(self, image):
         """
         detect objects in an image given an image path,
         including confidence sore for each object and ratio of covered area that object's bounding box covers
         objects name come from the coco2017 dataset, which the model was trained on.
-        input: str, image path
+        input: np array, image
         output: dictionary, each key<str> is the object class name, value<list> contains [ confidence_score, area_ratio]
         """
-        # import image
-        self.show_img_with_path(image_path)
-        image = plt.imread(image_path)
         # resizing
         resized_image = tf.image.resize(
             images=image,
@@ -62,7 +59,6 @@ class Object_Detector(detector.Detector):
         class_bbox = np.asarray(detections['detection_boxes'][0])
         # list of all detected classes
         class_detected = {}
-        print("Detection for image:", os.path.basename(image_path))
         for i in range(0, min(5, len(class_array))):
             if class_score[i] >= self.SCORE_THRESHOLD:
                 # extract class name
@@ -76,10 +72,19 @@ class Object_Detector(detector.Detector):
                     score = max(class_score[i], class_detected[class_name][0])
                     area = max(Object_Detector.cal_bbox_area_ratio(class_bbox[i]), class_detected[class_name][1])
                 class_detected[class_name] = [score, area]
-        print("object detected:", class_detected)
         return class_detected
 
-    def detect_images(self, image_paths):
+    def detect_images(self, images):
+        """
+        input: list of image-np-arrays
+        output: list of predictions
+        """
+        list_predictions = []
+        for image in images:
+            list_predictions.append(self.detect_image(image))
+        return list_predictions
+
+    def detect_images_by_paths(self, image_paths):
         """
         Detect objects in an array of images
         input: list<string>,  list of images paths
@@ -105,10 +110,7 @@ class Object_Detector(detector.Detector):
 
 
 if __name__ == "__main__":
-    sample_images_names = os.listdir(os.path.join('Detectors', 'sample_images'))
-    clean_sample_images_names = list(filter(lambda name: os.path.splitext(name)[1] == '.jpg', sample_images_names))
-    sample_images_paths = list(map(lambda name: os.path.join('Detectors', 'sample_images', name), clean_sample_images_names))
-    print(sample_images_paths)
     od = Object_Detector(labels_path=COCO_LABEL_PATH, super_label_path=COCO_SUPER_LABEL_PATH, model_url=MODEL_URL)
-    prediction = od.detect_images(sample_images_paths)
+    sample_images_dir = os.path.join("sample_images", "classifier testing")
+    prediction = od.detect_images(Object_Detector.import_images_from_dir(sample_images_dir))
     print(prediction)

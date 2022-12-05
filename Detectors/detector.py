@@ -15,7 +15,7 @@ class Detector:
     model = None
     IMAGE_SIZE = None
 
-    def __init__(self, class_names, model_url=None, model_path=None, image_size=244):
+    def __init__(self, class_names=None, model_url=None, model_path=None, image_size=244):
         self.IMAGE_SIZE = image_size
         self.CLASS_NAMES = class_names
         # downloaded models from model zoo
@@ -24,7 +24,7 @@ class Detector:
             model_path = os.path.join('models', 'checkpoints', self.model_name, 'saved_model')
             self.load_downloaded_model(model_path)
         # saved keras models
-        elif model_url is None and os.path.splitext(model_path)[1] == ".h5":
+        elif model_url is None and model_path is not None and os.path.splitext(model_path)[1] == ".h5":
             self.model_name = os.path.basename(model_path)
             self.load_saved_model(model_path)
 
@@ -88,12 +88,17 @@ class Detector:
         image_tensor = tf.convert_to_tensor(np.expand_dims(resized_image, axis=0))
         predictions = self.model.predict(image_tensor)
         prediction = self.get_prediction(predictions)
-        print(prediction)
-        Detector.show_img(resized_image, prediction)
         return prediction
 
     def predict_images(self, images):
-        pass
+        """
+                input: list of image-np-arrays
+                output: list of predictions
+                """
+        list_predictions = []
+        for image in images:
+            list_predictions.append(self.predict_image(image))
+        return list_predictions
 
     def predict_images_by_path(self, image_paths):
         predictions = {}
@@ -107,13 +112,10 @@ class Detector:
 
     def get_prediction(self, prediction):
         one_hot_array = prediction[0]
-        print(one_hot_array)
         max_confidence = max(one_hot_array)
         if max_confidence < 0.5:
             return 'unsure'
         else:
-            print(one_hot_array.argmax())
-            print(self.CLASS_NAMES)
             return {self.CLASS_NAMES[one_hot_array.argmax()]: [max_confidence]}
 
     @staticmethod
@@ -158,6 +160,12 @@ class Detector:
         for image_path in images_path:
             image_list.append(Detector.import_image_from_path(image_path))
         return image_list
+
+
+if __name__ == "__main__":
+    detector = Detector()
+    sample_dir_path = os.path.join("sample_images", "classifier testing")
+    print(detector.get_image_list(sample_dir_path))
 
 
 
