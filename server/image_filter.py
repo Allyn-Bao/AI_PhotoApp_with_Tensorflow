@@ -5,7 +5,7 @@ import os
 class Image_Filter:
     IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".JPG"]
 
-    def __init__(self, image_path_list: list):
+    def __init__(self):
         self.image_classifier = Image_classifier()
         # image paths -> [ list of albums, list of keywords ]
         self.image_path_to_labels_dict = dict()
@@ -143,7 +143,7 @@ class Image_Filter:
 
 if __name__ == "__main__":
     # image_classifier = Image_classifier()
-    image_filter = Image_Filter([])
+    image_filter = Image_Filter()
 
     # local_image_path_list = image_classifier.
 
