@@ -1,9 +1,12 @@
 from Detectors.image_classifier import Image_classifier
 import os
+import requests
+from PIL import Image
+from io import BytesIO
+import numpy as np
 
 
 class Image_Filter:
-    IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".JPG"]
 
     def __init__(self):
         self.image_classifier = Image_classifier()
@@ -17,55 +20,64 @@ class Image_Filter:
         # Keywords -> list of images
         self.keyword_to_image_paths_dict = dict()
 
-    def add_image_path(self, image_path):
+    def add_image(self, image, is_path=False):
         """
         add image path to system
         """
-        if self.is_image(image_path):
-            # get labels
-            albums, keywords = self.get_label_for_image(image_path)
-            # image - labels:
-            self.image_path_to_labels_dict[image_path] = [albums + ["all"], keywords]
-            # albums:
-            for album in albums:
-                self.add_image_path_to_list_of_values_in_dict("all", image_path, self.album_to_image_paths_dict)
-                self.add_image_path_to_list_of_values_in_dict(album, image_path, self.album_to_image_paths_dict)
-            # keywords:
-            for keyword in keywords:
-                self.add_image_path_to_list_of_values_in_dict(keyword, image_path, self.keyword_to_image_paths_dict)
+        if image in self.image_path_to_labels_dict.keys():
+            print(f"image: {image} already in dict")
             return 0
-        else:
-            print("Error: not image: ", image_path)
-            return 1
+        # get labels
+        albums, keywords = self.get_label_for_image(image, is_path=is_path)
+        # image - labels:
+        self.image_path_to_labels_dict[image] = [albums + ["all"], keywords]
+        # albums:
+        for album in albums:
+            self.add_image_to_list_of_values_in_dict("all", image, self.album_to_image_paths_dict)
+            self.add_image_to_list_of_values_in_dict(album, image, self.album_to_image_paths_dict)
+        # keywords:
+        for keyword in keywords:
+            self.add_image_to_list_of_values_in_dict(keyword, image, self.keyword_to_image_paths_dict)
+        return 0
 
-    def add_images_paths(self, images_paths: list):
+    def add_images(self, images: list, is_path):
         """
         add list of image path to system
         """
-        for image_path in images_paths:
-            self.add_image_path(image_path)
+        for image in images:
+            self.add_image(image, is_path=is_path)
 
-    def remove_image_path(self, image_path):
+    def remove_image(self, image):
         """
         remove image path from system
         """
-        try:
-            # image - labels
-            labels = self.image_path_to_labels_dict[image_path]
-            albums = labels[0]
-            keywords = labels[1]
-            # remove from albums dict
-            for album in albums:
-                self.remove_image_path_to_list_of_values_in_dict(album, image_path, self.album_to_image_paths_dict)
-            # remove from keyword dict
-            for keyword in keywords:
-                self.remove_image_path_to_list_of_values_in_dict(keyword, image_path, self.keyword_to_image_paths_dict)
-            return 0
-        except Exception as e:
-            print(e)
+        if image not in self.image_path_to_labels_dict.keys():
+            print(f"remove failed: image not exist {image}")
             return 1
+        # image - labels
+        labels = self.image_path_to_labels_dict[image]
+        albums = labels[0]
+        keywords = labels[1]
+        self.image_path_to_labels_dict = self.remove_image_from_label_dict(image)
+        # remove from albums dict
+        for album in albums:
+            self.remove_image_to_list_of_values_in_dict(album, image, self.album_to_image_paths_dict)
+        # remove from keyword dict
+        for keyword in keywords:
+            self.remove_image_to_list_of_values_in_dict(keyword, image, self.keyword_to_image_paths_dict)
+        return 0
 
-    def get_images_paths_from_album(self, album):
+    def remove_image_from_label_dict(self, image):
+        """
+        remove image from image_to_label dict
+        """
+        new_dict = {}
+        for key, values in self.image_path_to_labels_dict.items():
+            if key != image:
+                new_dict[key] = values
+        return new_dict
+
+    def get_images_from_album(self, album):
         """
         album -> list of image path
         """
@@ -75,7 +87,7 @@ class Image_Filter:
             print(f"Album {album} does not exist")
             return 1
 
-    def get_images_paths_from_keyword(self, keyword):
+    def get_images_from_keyword(self, keyword):
         """
         keyword -> list of image paths
         """
@@ -85,24 +97,40 @@ class Image_Filter:
             print(f"Keyword {keyword} does not exist")
             return 1
 
-    def get_images_paths_from_keywords(self, keywords: list):
+    def get_images_from_keywords(self, keywords: list):
         """
         list of keywords -> list of image paths
         """
         image_list = set()
         for keyword in keywords:
-            image_list.add(self.get_images_paths_from_keyword(keyword))
+            image_list.update(set(self.get_images_from_keyword(keyword)))
         return list(image_list)
 
-    def get_label_for_image(self, image_path):
+    def get_images_filtered(self, album=None, keywords=[]):
+        """
+        specified album + keywords -> list of qualified images
+        """
+        images_in_album = images_from_keywords = self.image_path_to_labels_dict.keys()
+        if album is not None:
+            images_in_album = self.get_images_from_album(album)
+        if len(keywords) != 0:
+            images_from_keywords = self.get_images_from_keywords(keywords)
+        return list(set(images_in_album) & set(images_from_keywords))
+
+    def get_label_for_image(self, image, is_path=False):
         """
         get labels with Image Classifier
         """
-        return self.image_classifier.label_image(self.image_classifier.import_image_from_path(image_path))
-
+        if is_path:
+            return self.image_classifier.label_image(self.image_classifier.import_image_from_path(image))
+        else:
+            # is url
+            response = requests.get(image)
+            image_array = np.array(Image.open(BytesIO(response.content)))
+            return self.image_classifier.label_image(image_array)
 
     @staticmethod
-    def add_image_path_to_list_of_values_in_dict(key, image_path, dictionary: dict):
+    def add_image_to_list_of_values_in_dict(key, image_path, dictionary: dict):
         """
         dictionary: { key: [images] }
         add image path to [images] under dictionary[key]
@@ -114,7 +142,7 @@ class Image_Filter:
         return dictionary
 
     @staticmethod
-    def remove_image_path_to_list_of_values_in_dict(key, image_path, dictionary: dict):
+    def remove_image_to_list_of_values_in_dict(key, image_path, dictionary: dict):
         """
         dictionary: { key: [images] }
         add image path to [images] under dictionary[key]
@@ -131,7 +159,7 @@ class Image_Filter:
         """
         return True if file is image (file extension in IMAGE_EXTENSIONS)
         """
-        return os.path.splitext(os.path.basename(image_path))[1] in self.IMAGE_EXTENSIONS
+        return os.path.splitext(os.path.basename(image_path))[1] in [".jpg", ".JPG", ".JPEG", ".jpeg"]
 
     def get_all_image_path_from_dir(self, dir_path):
         """
@@ -149,7 +177,9 @@ if __name__ == "__main__":
 
     dir_path = os.path.join("..", "images")
     images_list = image_filter.get_all_image_path_from_dir(dir_path)
-    image_filter.add_images_paths(images_list)
-    print(image_filter.get_images_paths_from_keywords(["building"]))
+    image_filter.add_images(images_list, is_path=True)
+    print(len(image_filter.image_path_to_labels_dict))
+    image_filter.remove_image(images_list[0])
+    print(len(image_filter.image_path_to_labels_dict))
 
 

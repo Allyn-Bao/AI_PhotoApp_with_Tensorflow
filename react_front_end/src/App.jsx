@@ -8,7 +8,8 @@ import NavButtons from './navButtons';
 
 function App() {
   // constants
-  const appIcon = useState("")
+  const appIcon = useState("");
+  const appName = useState("Photos")
 
   // state variables
   // images list
@@ -37,13 +38,16 @@ function App() {
   return (
     <div className="App">
       <NavigationBar
-      appIcon={appIcon}
-      onSearchClick={handleSearchClick}
+        appIcon={appIcon}
+        appName={appName}
+        onSearchClick={handleSearchClick}
       />
       <ImageGallery
 
       />
       <NavButtons
+          onHomeClick={handleHomeClick}
+          onAlbumsClick={handleAlbumClick}
       />
 
 
