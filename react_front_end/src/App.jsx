@@ -1,58 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
 import React from "react";
-import { useState } from 'react';
-import NavigationBar from './NavigationBar';
-import ImageGallery from './ImageGallery';
-import NavButtons from './navButtons';
+import NavigationBar from "./components/NavigationBar";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-function App() {
-  // constants
-  const appIcon = useState("");
-  const appName = useState("Photos")
+class App extends React.Component {
 
-  // state variables
-  // images list
-  const [images, setImages] = useState([]);
-  // albums
-  const [albums, setAlbums] = useState([]);
-  // album covers
-  const [albumCovers, setAlbumCovers] = useState([]);
-  // toggle between home and albums
-  const [isHome, setIsHome] = useState(true);
-
-  // when home button is clicked
-  function handleHomeClick() {
-    setIsHome(true);
-  }
-  // when album button is clicked
-  function handleAlbumClick() {
-    setIsHome(false);
-  }
-  // search
-  function handleSearchClick(searchTerm) {
-    // 
-    console.log("term searched: " + searchTerm)
+  state = {
+    searchText: ""
   }
 
-  return (
-    <div className="App">
-      <NavigationBar
-        appIcon={appIcon}
-        appName={appName}
-        onSearchClick={handleSearchClick}
-      />
-      <ImageGallery
+  handleRoute(route) {
+    console.log("route to: ", route)
+  }
 
-      />
-      <NavButtons
-          onHomeClick={handleHomeClick}
-          onAlbumsClick={handleAlbumClick}
-      />
+  handleSearchInput = event => {
+    this.setState({
+      searchText: event.target.value
+    });
+  }
 
+  handleSearch(keyword) {
+    console.log("searching: ", keyword)
+  }
 
-    </div>
-  );
+  render() {
+    return (
+      <div>
+        <Router>
+        <NavigationBar
+          handleRoute={this.handleRoute}
+          handleSearchInput={this.handleSearchInput}
+          handleSearch={this.handleSearch}
+          searchText={this.state.searchText}
+        />
+        <Switch>
+          <Route path="/albums">
+            <h1>Albums</h1>
+          </Route>
+          <Route path="/add_photos">
+            <h1>Add Photos</h1>
+          </Route>
+          <Route path="/">
+            <h1>Home</h1>
+          </Route>
+        </Switch>
+        </Router>
+      </div>
+    );
+  }
 }
 
 export default App;
