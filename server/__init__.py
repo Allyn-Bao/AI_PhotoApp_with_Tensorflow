@@ -7,10 +7,12 @@ from image_filter import Image_Filter
 import os
 # from server.extensions import db
 from server.views import *
+from flask_cors import CORS
 
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     # database
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.sqlite'

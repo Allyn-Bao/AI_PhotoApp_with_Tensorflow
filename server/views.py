@@ -3,6 +3,7 @@ from server.extensions import db
 # from server.model import Images_Db
 import json
 import os
+from flask_cors import cross_origin
 
 main = Blueprint('main', __name__)
 
@@ -31,6 +32,15 @@ def add_images():
     keywords = data["keywords"]
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
     return jsonify({"condition": "image(s) added", "updated_images": list_of_images}), 201
+
+
+@main.route('/add_images_check', methods=['POST'])
+@cross_origin()
+def add_images_check():
+    data = request.get_json()
+    for imageURL in data['image']:
+        print(imageURL)
+    return jsonify({"condition": "image recieved"})
 
 
 @main.route('/delete_images', methods=['POST'])
