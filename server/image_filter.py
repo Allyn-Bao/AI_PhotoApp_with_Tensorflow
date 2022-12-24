@@ -1,3 +1,6 @@
+import base64
+import io
+
 from Detectors.image_classifier import Image_classifier
 import os
 import requests
@@ -124,9 +127,13 @@ class Image_Filter:
         if is_path:
             return self.image_classifier.label_image(self.image_classifier.import_image_from_path(image))
         else:
-            # is url
-            response = requests.get(image)
-            image_array = np.array(Image.open(BytesIO(response.content)))
+            # # is public web url
+            # response = requests.get(image)
+            # image_array = np.array(Image.open(BytesIO(response.content)))
+            # is encoded url
+            image_data = base64.b64decode(image.split(',')[1])
+            image_data = Image.open(io.BytesIO(image_data))
+            image_array = np.array(image_data)
             return self.image_classifier.label_image(image_array)
 
     @staticmethod

@@ -1,3 +1,7 @@
+import base64
+import imghdr
+import io
+
 from flask import Flask, request, jsonify, Blueprint, current_app
 from server.extensions import db
 # from server.model import Images_Db
@@ -8,6 +12,7 @@ from flask_cors import cross_origin
 main = Blueprint('main', __name__)
 
 save_path = os.path.join("./data.json")
+images_dir_path = os.path.join(".", "images")
 
 
 @main.route('/')
@@ -17,10 +22,12 @@ def root():
 
 @main.route('/add_images', methods=['POST'])
 def add_images():
-    data = request.get_json()
-    # add image to image filter object
-    for image_url in data["images"]:
-        current_app.image_filter.add_image(image_url)
+    image_urls = request.json["imageURLs"]
+    album = request.json["album"]
+    keywords = request.json["keywords"]
+    for i, url in enumerate(image_urls):
+        if url.startswith('data:image/jpeg;'):
+            current_app.image_filter.add_image(url)
     print(current_app.image_filter.image_path_to_labels_dict)
     # save
     contents = jsonify_dicts(current_app.image_filter.image_path_to_labels_dict,
@@ -28,8 +35,6 @@ def add_images():
                              current_app.image_filter.keyword_to_image_paths_dict)
     save_to_file(contents, save_path)
     # return updated image list according to the filters
-    album = data["album"]
-    keywords = data["keywords"]
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
     return jsonify({"condition": "image(s) added", "updated_images": list_of_images}), 201
 
@@ -37,10 +42,15 @@ def add_images():
 @main.route('/add_images_check', methods=['POST'])
 @cross_origin()
 def add_images_check():
-    data = request.get_json()
-    for imageURL in data['image']:
-        print(imageURL)
-    return jsonify({"condition": "image recieved"})
+    # get image urls:
+    image_urls = request.json["imageURLs"]
+    for i, url in enumerate(image_urls):
+        if url.startswith('data:image/jpeg;'):
+            with open(os.path.join(images_dir_path, f"image{i}.jpeg"), "wb") as f:
+                f.write(base64.b64decode(url.split(',')[1]))
+            current_app.image_filter.add_image(url)
+    print(current_app.image_filter.image_path_to_labels_dict)
+    return jsonify({"condition": "image received"})
 
 
 @main.route('/delete_images', methods=['POST'])
@@ -64,11 +74,10 @@ def delete_images():
 
 @main.route('/images', methods=['POST'])
 def get_images():
-    data = request.get_json()
-    album = data["album"]
-    keywords = data["keywords"]
+    album = request.json["album"]
+    keywords = request.json["keywords"]
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
-    return jsonify({"condition": "image filtered", "updated_images": list_of_images}), 201
+    return jsonify({"condition": "image filtered", "images": list_of_images}), 201
 
 
 def save_to_database():
@@ -118,3 +127,10 @@ def unpack_json_dicts(json_content):
                 json_content["album_to_image"],
                 json_content["keyword_to_image"])
     return None
+
+
+def save_image_data_to_directory(image_data, image_name, dir_path):
+    image_path = os.path.join(dir_path, image_name)
+    with open(image_path, "wb") as f:
+        f.write(image_data)
+
