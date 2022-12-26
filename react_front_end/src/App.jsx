@@ -13,18 +13,17 @@ class App extends React.Component {
   SERVER_URL = "http://127.0.0.1:5000";
 
   state = {
+    allImages:[],
     imageList: [],
     searchText: "",
     uploadImageURLs: [],
     updated: false
   }
 
-  
-
-  handleRoute(route) {
-    console.log("route to: ", route)
-
-    
+  handleHomeClick = () => {
+    // reset images to all, clear all keyword search
+    this.setState({ imageList: this.state.allImages })
+    this.setState({ searchText: "" })
   }
 
   handleSearchInput = event => {
@@ -34,9 +33,29 @@ class App extends React.Component {
     });
   }
 
-  handleSearch(keyword) {
+  handleSearch = (keyword) => {
     // update state variable image list according to album / keywords
     console.log("searching: ", keyword)
+
+    fetch('http://127.0.0.1:5000/images', {
+      method:'POST',
+      body: JSON.stringify({
+        album: null,
+        keywords: [keyword],
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // response data
+        console.log(data)
+        this.setState({ imageList: data.images })
+      })
+        .catch((error) => {
+          console.error(error);
+        });
 
   }
 
@@ -79,6 +98,7 @@ class App extends React.Component {
         // response data
         console.log(data)
         this.setState({ imageList: data.updated_images })
+        this.setState({ allImages: data.all_images })
       })
         .catch((error) => {
           console.error(error);
@@ -104,13 +124,13 @@ class App extends React.Component {
       })
         .then((response) => response.json())
         .then((data) => {
+          this.state.allImages = data.images;
           this.state.imageList = data.images;
           this.setState({ updated: true });
         })
           .catch((error) => {
             console.error(error);
-          })
-      
+          }) 
     }
     
 
@@ -122,6 +142,7 @@ class App extends React.Component {
           handleSearchInput={this.handleSearchInput}
           handleSearch={this.handleSearch}
           searchText={this.state.searchText}
+          handleHomeClick={this.handleHomeClick}
         />
         <Switch>
           <Route path="/albums">
@@ -133,9 +154,6 @@ class App extends React.Component {
               handleImageUploadSelect={this.handleImageUploadSelect}
               handleImageUpload={this.handleImageUpload}
               files={this.state.uploadImageURLs}
-            />
-            <UploadImageList
-              uploadImageURLs={this.state.uploadImageURLs}
             />
             </div>
           </Route>
