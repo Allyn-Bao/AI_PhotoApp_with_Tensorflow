@@ -18,7 +18,7 @@ class NavigationBar extends React.Component {
                     style={{ maxHeight: '100px' }}
                     navbarScroll
                         >
-                        <Nav.Link as={Link} to={"/"}>Home</Nav.Link>
+                        <Nav.Link as={Link} to={"/"} onClick={this.props.handleHomeClick}>Home</Nav.Link>
                         <Nav.Link as={Link} to={"/albums"}>Albums</Nav.Link>
                         <Nav.Link as={Link} to={"/add_photos"}>Add Photos</Nav.Link>
                     </Nav>
@@ -26,6 +26,7 @@ class NavigationBar extends React.Component {
                             <FormControl
                                 onChange={this.props.handleSearchInput}
                                 type="text"
+                                searchText={this.props.searchText}
                                 placeholder="keyword"
                                 className="me-2"
                             />
