@@ -88,7 +88,7 @@ class Image_Filter:
             return self.album_to_image_paths_dict[album]
         else:
             print(f"Album {album} does not exist")
-            return 1
+            return []
 
     def get_images_from_keyword(self, keyword):
         """
@@ -98,7 +98,7 @@ class Image_Filter:
             return self.keyword_to_image_paths_dict[keyword]
         else:
             print(f"Keyword {keyword} does not exist")
-            return 1
+            return []
 
     def get_images_from_keywords(self, keywords: list):
         """
@@ -107,6 +107,9 @@ class Image_Filter:
         image_list = set()
         for keyword in keywords:
             image_list.update(set(self.get_images_from_keyword(keyword)))
+            # get album with keywords - when keyword input is also album
+            if keyword in self.album_to_image_paths_dict.keys():
+                image_list.update(set(self.get_images_from_album(keyword)))
         return list(image_list)
 
     def get_images_filtered(self, album=None, keywords=[]):
@@ -114,8 +117,10 @@ class Image_Filter:
         specified album + keywords -> list of qualified images
         """
         images_in_album = images_from_keywords = self.image_path_to_labels_dict.keys()
+        # get image from album
         if album is not None:
             images_in_album = self.get_images_from_album(album)
+        # get image with keywords
         if len(keywords) != 0:
             images_from_keywords = self.get_images_from_keywords(keywords)
         return list(set(images_in_album) & set(images_from_keywords))

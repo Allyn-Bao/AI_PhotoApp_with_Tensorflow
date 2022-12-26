@@ -36,7 +36,11 @@ def add_images():
     save_to_file(contents, save_path)
     # return updated image list according to the filters
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
-    return jsonify({"condition": "image(s) added", "updated_images": list_of_images}), 201
+    # all images
+    all_images = current_app.image_filter.image_path_to_labels_dict.keys()
+    return jsonify({"condition": "image(s) added",
+                    "updated_images": list_of_images,
+                    "all_images": all_images}), 201
 
 
 @main.route('/add_images_check', methods=['POST'])
@@ -76,8 +80,13 @@ def delete_images():
 def get_images():
     album = request.json["album"]
     keywords = request.json["keywords"]
+    print(f"Search: album{album}; keywords: {keywords}")
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
-    return jsonify({"condition": "image filtered", "images": list_of_images}), 201
+    all_images = current_app.image_filter.image_path_to_labels_dict.keys()
+    return jsonify({"condition": "image filtered",
+                    "images": list_of_images,
+                    "all_images": all_images,
+                    "no-image-found": len(list_of_images) == 0 }), 201
 
 
 def save_to_database():
