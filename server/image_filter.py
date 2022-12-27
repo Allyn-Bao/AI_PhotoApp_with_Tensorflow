@@ -2,6 +2,7 @@ import base64
 import io
 
 from Detectors.image_classifier import Image_classifier
+from vocab_dictionary import Vocab_Dictionary
 import os
 import requests
 from PIL import Image
@@ -22,6 +23,9 @@ class Image_Filter:
         ))
         # Keywords -> list of images
         self.keyword_to_image_paths_dict = dict()
+
+        # vocab dictionary
+        self.vd = Vocab_Dictionary()
 
     def add_image(self, image, is_path=False):
         """
@@ -94,11 +98,24 @@ class Image_Filter:
         """
         keyword -> list of image paths
         """
-        if keyword in self.keyword_to_image_paths_dict.keys():
-            return self.keyword_to_image_paths_dict[keyword]
-        else:
-            print(f"Keyword {keyword} does not exist")
-            return []
+        image_list = set()
+        # check keyword in the existing list of keywords
+        for exist_keyword, images in list(self.keyword_to_image_paths_dict.items()):
+            if self.vd.is_related(keyword, exist_keyword):
+                image_list.update(set(images))
+        # check if keyword is in preset keyword synonym list:
+        similar_keyword = self.vd.word_in_keywords_related_words(keyword)
+        if similar_keyword is not None and similar_keyword in list(self.keyword_to_image_paths_dict.keys()):
+            image_list.update(set(self.keyword_to_image_paths_dict[similar_keyword]))
+        # check if keyword is album name
+        if keyword in list(self.album_to_image_paths_dict.keys()):
+            image_list.update(set(self.album_to_image_paths_dict[keyword]))
+        # check if keyword is synonym to album name:
+        album_name_similar_to_keyword = self.vd.word_in_album_related_words(keyword)
+        if (album_name_similar_to_keyword is not None
+                and album_name_similar_to_keyword in list(self.album_to_image_paths_dict.keys())):
+            image_list.update(set(self.album_to_image_paths_dict[album_name_similar_to_keyword]))
+        return list(image_list)
 
     def get_images_from_keywords(self, keywords: list):
         """

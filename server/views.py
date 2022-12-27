@@ -38,9 +38,8 @@ def add_images():
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
     # all images
     all_images = current_app.image_filter.image_path_to_labels_dict.keys()
-    return jsonify({"condition": "image(s) added",
-                    "updated_images": list_of_images,
-                    "all_images": all_images}), 201
+    return jsonify({"condition": f"Complete! {len(image_urls)} images added successfully",
+                    "updated_images": list_of_images}), 201
 
 
 @main.route('/add_images_check', methods=['POST'])
@@ -59,31 +58,41 @@ def add_images_check():
 
 @main.route('/delete_images', methods=['POST'])
 def delete_images():
-    data = request.get_json()
+    images_to_delete = request.json["deleteImages"]
+    album = request.json["album"]
+    keywords = request.json["keywords"]
+    print(f"log - current images: {len(list(current_app.image_filter.image_path_to_labels_dict.keys()))} images")
     # delete images
-    for image_url in data["images"]:
+    for image_url in images_to_delete:
         current_app.image_filter.remove_image(image_url)
-    print(current_app.image_filter.image_path_to_labels_dict)
     # save
     contents = jsonify_dicts(current_app.image_filter.image_path_to_labels_dict,
                              current_app.image_filter.album_to_image_paths_dict,
                              current_app.image_filter.keyword_to_image_paths_dict)
     save_to_file(contents, save_path)
     # return updated image list according to the filters
-    album = data["album"]
-    keywords = data["keywords"]
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
-    return jsonify({"condition": "image(s) deleted", "updated_images": list_of_images}), 201
+    # all images
+    all_images = list(current_app.image_filter.image_path_to_labels_dict.keys())
+
+    print(f"log - image removed - now {len(all_images)} images")
+    return jsonify({"condition": f"{len(images_to_delete)} image(s) deleted",
+                    "updated_images": list_of_images,
+                    "all_images:": all_images}), 201
 
 
 @main.route('/images', methods=['POST'])
+@cross_origin()
 def get_images():
     album = request.json["album"]
     keywords = request.json["keywords"]
+    # empty input
+    if keywords == [""]:
+        keywords = []
     print(f"Search: album{album}; keywords: {keywords}")
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
-    all_images = current_app.image_filter.image_path_to_labels_dict.keys()
-    return jsonify({"condition": "image filtered",
+    all_images = list(current_app.image_filter.image_path_to_labels_dict.keys())
+    return jsonify({"condition": f"images filtered by keyword(s): {' '.join(keywords)}, {len(list_of_images)} image(s) found",
                     "images": list_of_images,
                     "all_images": all_images,
                     "no-image-found": len(list_of_images) == 0 }), 201
