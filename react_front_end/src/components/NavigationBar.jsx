@@ -8,7 +8,7 @@ class NavigationBar extends React.Component {
 
     render() {
         return (
-            <Navbar bg="dark" variant="dark" expand="lg">
+            <Navbar  fixed="top" bg="dark" variant="dark" expand="lg">
                 <Container>
                     <Navbar.Brand>Photos</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
@@ -26,13 +26,12 @@ class NavigationBar extends React.Component {
                             <FormControl
                                 onChange={this.props.handleSearchInput}
                                 type="text"
-                                searchText={this.props.searchText}
                                 placeholder="keyword"
                                 className="me-2"
                             />
                             <Button 
                                 variant="outline-success" 
-                                onClick={() => this.props.handleSearch(this.props.searchText)}>Search</Button>
+                                onClick={() => this.props.handleSearch(this.props.searchKeywords)}>Search</Button>
                         </Form>
                     </Navbar.Collapse>
                 </Container>
