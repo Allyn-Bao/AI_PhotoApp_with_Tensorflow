@@ -19,7 +19,7 @@ class NavigationBar extends React.Component {
                     navbarScroll
                         >
                         <Nav.Link as={Link} to={"/"} onClick={this.props.handleHomeClick}>Home</Nav.Link>
-                        <Nav.Link as={Link} to={"/albums"}>Albums</Nav.Link>
+                        <Nav.Link as={Link} to={"/albums"} onClick={this.props.handleAlbumsClick}>Albums</Nav.Link>
                         <Nav.Link as={Link} to={"/add_photos"}>Add Photos</Nav.Link>
                     </Nav>
                         <Form className="d-flex">

@@ -1,8 +1,12 @@
 .image-gallery {
     display: grid;
     padding-top: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
     margin: 5px;
-    grid-template-columns: repeat(3, 30%);
+    grid-template-columns: repeat(3, 33%);
+    grid-template-rows: auto;
     grid-gap: 10px;
     align-items: flex-start;
     justify-content: center;
@@ -17,8 +21,8 @@
   .edit-buttons {
     position: fixed;
     z-index: 1;
-    top: 15%;
-    right: 3%;
+    top: 8%;
+    right: 1%;
   }
 
   .image-container {

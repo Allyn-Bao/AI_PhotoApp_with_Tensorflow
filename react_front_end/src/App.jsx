@@ -3,7 +3,8 @@ import {setState, useState} from "react";
 import NavigationBar from "./components/NavigationBar";
 import ImageGallery from "./components/ImageGallery";
 import ImageUploader from "./components/ImageUploader";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, useHistory, useNavigate} from "react-router-dom";
+import AlbumList from "./components/AlbumList";
 
 
 class App extends React.Component {
@@ -21,8 +22,10 @@ class App extends React.Component {
     selectedIndex: [], // image index in imageList if images are selected - keep track of if images are selected / should be unselected
     selectedImages: [], // images in Gallery selected
     imageGalleryMessage: "", // message prompt for search / select / delete
-    updated: false  // false when page is reload or image uploaded, a signal to update / fatch the imageList
-    
+    updated: false,  // false when page is reload or image uploaded, a signal to update / fatch the imageList
+    albumCoverList: [], // list of image urls for each existing album cover
+    albumLabelList: [], // list of string album labels
+    currentAlbum: null, // current album. null when is not in album gallery
   }
   
   /*
@@ -37,9 +40,14 @@ class App extends React.Component {
     // if comming from Add Photos: clear uploadImageURLs
     this.setState({ uploadImageURLs: [] })
     this.setState({ uploadMessage: "" })
+    // set current album back to null
+    this.setState({ currentAlbum: null })
   }
   // when album button in navbar is pressed
   handleAlbumClick = () => {
+    this.setState({ searchKeywords: "" })
+    // set current album back to null
+    this.setState({ currentAlbum: null })
   }
 
   /*
@@ -60,7 +68,7 @@ class App extends React.Component {
     fetch('http://127.0.0.1:5000/images', {
       method:'POST',
       body: JSON.stringify({
-        album: null,
+        album: this.state.currentAlbum,
         keywords: [keyword],
       }),
       headers: {
@@ -126,7 +134,7 @@ class App extends React.Component {
       method:'POST',
       body: JSON.stringify({
         deleteImages: this.state.selectedImages,
-        album: null,
+        album: this.state.currentAlbum,
         keywords: [],
       }),
       headers: {
@@ -148,6 +156,34 @@ class App extends React.Component {
       this.updateSelect();
     }
   }
+
+  /*
+  Albums
+  */
+ // go to albumList
+ handleAlbumsClick = () => {
+  if (!this.state.updated) {
+    fetch('http://127.0.0.1:5000/get_albums')
+    .then(response => response.json())
+    .then(data => {
+      this.setState({ albumCoverList: data.album_cover_list })
+      this.setState({ albumLabelList: data.album_label_list })
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+  
+ }
+ // go to album in the albumList view
+ handleAlbumClick = (index) => {
+  const selectedAlbum = this.state.albumLabelList[index]
+  this.setState({ currentAlbum: selectedAlbum })
+  console.log(`album selected: ${this.state.albumLabelList[index]}`)
+  // redirect to album page
+  const navigate = useNavigate();
+  navigate.push('/album');
+ }
 
   /*
   Upload images
@@ -226,6 +262,8 @@ class App extends React.Component {
           this.state.imageList = data.images;
           this.setState({ updated: true });
           this.setState({ imageGalleryMessage: "" })
+          this.setState({ albumCoverList: data.album_cover_list })
+          this.setState({ albumLabelList: data.album_label_list })
         })
           .catch((error) => {
             console.error(error);
@@ -241,10 +279,18 @@ class App extends React.Component {
           handleSearch={this.handleSearch}
           searchKeywords={this.state.searchKeywords}
           handleHomeClick={this.handleHomeClick}
+          handleAlbumsClick={this.handleAlbumsClick}
         />
         <Switch>
           <Route path="/albums">
-            <h1>Albums</h1>
+            <AlbumList
+              albumCoverList={this.state.albumCoverList}
+              albumLabelList={this.state.albumLabelList}
+              handleAlbumClick={this.handleAlbumClick}
+            />
+          </Route>
+          <Route path="/album">
+            <h1 style="padding-top: 60px">{this.state.currentAlbum}</h1>
           </Route>
           <Route path="/add_photos">
             <div>
