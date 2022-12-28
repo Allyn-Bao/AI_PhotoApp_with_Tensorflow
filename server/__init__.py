@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from flask_marshmallow import Marshmallow
 from image_filter import Image_Filter
+from albums import Albums
 import os
 # from server.extensions import db
 from server.views import *
@@ -29,7 +30,8 @@ def create_app():
         app.image_filter.image_path_to_labels_dict, \
         app.image_filter.album_to_image_paths_dict, \
         app.image_filter.keyword_to_image_paths_dict = unpack_json_dicts(get_from_file(save_path))
-
+    # init albums
+    app.albums = Albums(app.image_filter.album_to_image_paths_dict)
     # blueprint
     from server.views import main
     app.register_blueprint(main)
