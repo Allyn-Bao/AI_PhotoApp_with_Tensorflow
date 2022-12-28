@@ -23,7 +23,6 @@ class Image_Filter:
         ))
         # Keywords -> list of images
         self.keyword_to_image_paths_dict = dict()
-
         # vocab dictionary
         self.vd = Vocab_Dictionary()
 

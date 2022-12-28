@@ -28,7 +28,8 @@ def add_images():
     for i, url in enumerate(image_urls):
         if url.startswith('data:image/jpeg;'):
             current_app.image_filter.add_image(url)
-    print(current_app.image_filter.image_path_to_labels_dict)
+    # update album covers
+    current_app.albums.update_album_covers(current_app.image_filter.album_to_image_paths_dict)
     # save
     contents = jsonify_dicts(current_app.image_filter.image_path_to_labels_dict,
                              current_app.image_filter.album_to_image_paths_dict,
@@ -65,6 +66,8 @@ def delete_images():
     # delete images
     for image_url in images_to_delete:
         current_app.image_filter.remove_image(image_url)
+    # update album covers
+    current_app.albums.update_album_covers(current_app.image_filter.album_to_image_paths_dict)
     # save
     contents = jsonify_dicts(current_app.image_filter.image_path_to_labels_dict,
                              current_app.image_filter.album_to_image_paths_dict,
@@ -92,10 +95,24 @@ def get_images():
     print(f"Search: album{album}; keywords: {keywords}")
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
     all_images = list(current_app.image_filter.image_path_to_labels_dict.keys())
+    album_covers = current_app.albums.get_album_covers()
+    album_labels = current_app.albums.get_album_labels()
     return jsonify({"condition": f"images filtered by keyword(s): {' '.join(keywords)}, {len(list_of_images)} image(s) found",
                     "images": list_of_images,
                     "all_images": all_images,
+                    "album_cover_list": album_covers,
+                    "album_label_list": album_labels,
                     "no-image-found": len(list_of_images) == 0 }), 201
+
+
+@main.route("/get_albums", methods=['GET'])
+@cross_origin()
+def get_albums():
+    album_covers = current_app.albums.get_album_covers()
+    album_labels = current_app.albums.get_album_labels()
+    return jsonify({"conditions": f"albums received",
+                    "album_cover_list": album_covers,
+                    "album_label_list": album_labels }), 200
 
 
 def save_to_database():
