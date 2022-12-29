@@ -26,7 +26,7 @@ class ImageUploader extends React.Component {
                     >Upload</button>
                 </div>
             </span>
-            <h4 class="text-muted">{this.props.uploadMessage}</h4>
+            <h4 className="text-muted">{this.props.uploadMessage}</h4>
             <UploadImages imageList={this.props.imageList}/>
             </div>
         );

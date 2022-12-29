@@ -3,7 +3,7 @@ import {setState, useState} from "react";
 import NavigationBar from "./components/NavigationBar";
 import ImageGallery from "./components/ImageGallery";
 import ImageUploader from "./components/ImageUploader";
-import { BrowserRouter as Router, Switch, Route, useHistory, useNavigate} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useHistory, useNavigate} from "react-router-dom";
 import AlbumList from "./components/AlbumList";
 
 
@@ -181,8 +181,8 @@ class App extends React.Component {
   this.setState({ currentAlbum: selectedAlbum })
   console.log(`album selected: ${this.state.albumLabelList[index]}`)
   // redirect to album page
-  const navigate = useNavigate();
-  navigate.push('/album');
+  // const navigate = useNavigate();
+  // navigate.push('/album');
  }
 
   /*
@@ -281,28 +281,28 @@ class App extends React.Component {
           handleHomeClick={this.handleHomeClick}
           handleAlbumsClick={this.handleAlbumsClick}
         />
-        <Switch>
-          <Route path="/albums">
+        <Routes>
+          <Route exact path="/albums" element={
             <AlbumList
-              albumCoverList={this.state.albumCoverList}
-              albumLabelList={this.state.albumLabelList}
-              handleAlbumClick={this.handleAlbumClick}
-            />
+            albumCoverList={this.state.albumCoverList}
+            albumLabelList={this.state.albumLabelList}
+            handleAlbumClick={this.handleAlbumClick}/>
+          }>
           </Route>
-          <Route path="/album">
+          <Route exact path="/album" element={
             <h1 style="padding-top: 60px">{this.state.currentAlbum}</h1>
+          }>
           </Route>
-          <Route path="/add_photos">
-            <div>
+          <Route exact path="/add_photos" element={
             <ImageUploader
-              handleImageUploadSelect={this.handleImageUploadSelect}
-              handleImageUpload={this.handleImageUpload}
-              imageList={this.state.uploadImageURLs}
-              uploadMessage={this.state.uploadMessage}
-            />
-            </div>
+            handleImageUploadSelect={this.handleImageUploadSelect}
+            handleImageUpload={this.handleImageUpload}
+            imageList={this.state.uploadImageURLs}
+            uploadMessage={this.state.uploadMessage}
+          />
+          }>
           </Route>
-          <Route path="/">
+          <Route exact path="/" element={
             <ImageGallery
               imageList={this.state.imageList}
               selectEnabled={this.state.selectEnabled}
@@ -311,8 +311,9 @@ class App extends React.Component {
               handleDeleteImages={this.handleDeleteImages}
               imageGalleryMessage={this.state.imageGalleryMessage}
             />
+          }>
           </Route>
-        </Switch>
+        </Routes>
         </Router>
       </div>
     );

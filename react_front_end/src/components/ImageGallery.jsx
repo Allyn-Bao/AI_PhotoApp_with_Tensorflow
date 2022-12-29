@@ -14,7 +14,6 @@ class ImageGallery extends React.Component {
 
         return (
             <div>
-                {/* <h4 className="text-muted">{this.props.imageGalleryMessage}</h4> */}
                 <div className="btn-group edit-buttons " role="group" aria-label="Edit Buttons">
                     <button type="button" className="btn btn-secondary opacity-80 bg-dark border-dark" onClick={this.props.updateSelect}>{this.props.selectEnabled ? "Unselect": "Select"}</button>
                     <button type="button" className="btn btn-secondary opacity-80 bg-dark border-dark" onClick={this.props.handleDeleteImages}>Delete</button>

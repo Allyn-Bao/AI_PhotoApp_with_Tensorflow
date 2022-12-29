@@ -1,6 +1,5 @@
 import React from "react";
 import {Navbar, Nav, Container, Form, FormControl, Button} from "react-bootstrap"
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom"
 
 

@@ -1,6 +1,6 @@
 .image-gallery {
     display: grid;
-    padding-top: 60px;
+    padding-top: 20px;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 10px;
@@ -19,22 +19,16 @@
   }
 
   .edit-buttons {
-    position: fixed;
-    z-index: 1;
-    top: 8%;
-    right: 1%;
+    position:fixed;
+    z-index: 2;
+    top: 60px;
+    left: 85%;
   }
 
   .image-container {
     position: relative;
     height: 100%;
     width: 100%;
-  }
-
-  .check-select {
-    position: absolute;
-    bottom: 10%;
-    right: 10%;
   }
 
   .image {
