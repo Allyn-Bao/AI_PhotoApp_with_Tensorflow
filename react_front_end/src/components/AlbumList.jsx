@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import React from "react";
 import "./AlbumList.css";
 import {Link} from "react-router-dom";
+import ImageGallery from "./UploadImages";
 
 
 class AlbumList extends React.Component {
@@ -15,7 +16,10 @@ class AlbumList extends React.Component {
 
         return (
             <div>
-                <div className="album-list">
+                {
+                    this.props.currentAlbum == null ? 
+
+                    <div className="album-list">
                     {this.props.albumCoverList.map((albumCoverURL, index) => {
                         return (
                             <div key={index} className="image-container">
@@ -30,6 +34,19 @@ class AlbumList extends React.Component {
                         )
                     })}
                 </div>
+                    
+                    : 
+                    <div className="album-gallery">
+                    <ImageGallery
+              imageList={this.props.imageList}
+              selectEnabled={this.props.selectEnabled}
+              updateSelect={this.props.updateSelect}
+              handleSelectGalleryImage={this.props.handleSelectGalleryImage}
+              handleDeleteImages={this.props.handleDeleteImages}
+              imageGalleryMessage={this.props.imageGalleryMessage}
+            />
+            </div>
+                }
             </div>
         );
     }

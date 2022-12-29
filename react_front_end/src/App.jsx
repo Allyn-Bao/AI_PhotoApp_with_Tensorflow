@@ -5,6 +5,7 @@ import ImageGallery from "./components/ImageGallery";
 import ImageUploader from "./components/ImageUploader";
 import { BrowserRouter as Router, Route, Routes, useHistory, useNavigate} from "react-router-dom";
 import AlbumList from "./components/AlbumList";
+import AlbumSwitch from "./components/AlbumSwitch"
 
 
 class App extends React.Component {
@@ -26,6 +27,7 @@ class App extends React.Component {
     albumCoverList: [], // list of image urls for each existing album cover
     albumLabelList: [], // list of string album labels
     currentAlbum: null, // current album. null when is not in album gallery
+    AlbumImageList: [], // list of images in the current album
   }
   
   /*
@@ -40,12 +42,6 @@ class App extends React.Component {
     // if comming from Add Photos: clear uploadImageURLs
     this.setState({ uploadImageURLs: [] })
     this.setState({ uploadMessage: "" })
-    // set current album back to null
-    this.setState({ currentAlbum: null })
-  }
-  // when album button in navbar is pressed
-  handleAlbumClick = () => {
-    this.setState({ searchKeywords: "" })
     // set current album back to null
     this.setState({ currentAlbum: null })
   }
@@ -123,7 +119,7 @@ class App extends React.Component {
       this.setState({ selectedImages: updatedSelectedImages })
     }
   }
-  // handle delte images
+  // handle delete images
   handleDeleteImages = () => {
     // check if selected Enabled
     if (this.state.selectEnabled) {
@@ -148,6 +144,7 @@ class App extends React.Component {
         this.setState({ imageList: data.updated_images })
         this.setState({ allImages: data.all_images })
         this.setState({ imageGalleryMessage: data.condition })
+        this.setState({ updated: false })
       })
         .catch((error) => {
           console.error(error);
@@ -173,16 +170,35 @@ class App extends React.Component {
       console.log(error)
     })
   }
-  
+  this.setState({ currentAlbum: null })
+  this.setState({ imageList: [] })
  }
  // go to album in the albumList view
  handleAlbumClick = (index) => {
   const selectedAlbum = this.state.albumLabelList[index]
+  console.log(`album selected: ${selectedAlbum}`)
+  // reset update to fetch album images
+  fetch(`http://127.0.0.1:5000/images`, {
+        method:'POST',
+        body: JSON.stringify({
+          album: selectedAlbum,
+          keywords: [],
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.condition)
+          this.state.imageList = data.images;
+          this.setState({ updated: true });
+        })
+          .catch((error) => {
+            console.error(error);
+          }) 
   this.setState({ currentAlbum: selectedAlbum })
-  console.log(`album selected: ${this.state.albumLabelList[index]}`)
-  // redirect to album page
-  // const navigate = useNavigate();
-  // navigate.push('/album');
+  console.log(`showing album: ${this.state.currentAlbum}`)
  }
 
   /*
@@ -248,7 +264,7 @@ class App extends React.Component {
       fetch(`http://127.0.0.1:5000/images`, {
         method:'POST',
         body: JSON.stringify({
-          album: null,
+          album: this.state.currentAlbum,
           keywords: [],
         }),
         headers: {
@@ -284,9 +300,18 @@ class App extends React.Component {
         <Routes>
           <Route exact path="/albums" element={
             <AlbumList
-            albumCoverList={this.state.albumCoverList}
-            albumLabelList={this.state.albumLabelList}
-            handleAlbumClick={this.handleAlbumClick}/>
+              albumCoverList={this.state.albumCoverList}
+              albumLabelList={this.state.albumLabelList}
+              handleAlbumClick={this.handleAlbumClick}
+              currentAlbum={this.state.currentAlbum}
+
+              imageList={this.state.imageList}
+              selectEnabled={this.state.selectEnabled}
+              updateSelect={this.updateSelect}
+              handleSelectGalleryImage={this.handleSelectGalleryImage}
+              handleDeleteImages={this.handleDeleteImages}
+              imageGalleryMessage={this.state.imageGalleryMessage}
+              />
           }>
           </Route>
           <Route exact path="/album" element={
