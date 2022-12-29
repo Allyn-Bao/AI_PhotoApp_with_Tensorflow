@@ -92,7 +92,7 @@ def get_images():
     # empty input
     if keywords == [""]:
         keywords = []
-    print(f"Search: album{album}; keywords: {keywords}")
+    print(f"Search: album: {album}; keywords: {keywords}")
     list_of_images = current_app.image_filter.get_images_filtered(album, keywords)
     all_images = list(current_app.image_filter.image_path_to_labels_dict.keys())
     album_covers = current_app.albums.get_album_covers()

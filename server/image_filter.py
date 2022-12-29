@@ -107,12 +107,14 @@ class Image_Filter:
         if similar_keyword is not None and similar_keyword in list(self.keyword_to_image_paths_dict.keys()):
             image_list.update(set(self.keyword_to_image_paths_dict[similar_keyword]))
         # check if keyword is album name
-        if keyword in list(self.album_to_image_paths_dict.keys()):
+        print(f"log - checking for keyword: {keyword}: list of albums: {self.album_to_image_paths_dict.keys()}")
+        if keyword in self.album_to_image_paths_dict.keys():
+            print(f"log - found album: {keyword} matches current keyword")
             image_list.update(set(self.album_to_image_paths_dict[keyword]))
         # check if keyword is synonym to album name:
         album_name_similar_to_keyword = self.vd.word_in_album_related_words(keyword)
         if (album_name_similar_to_keyword is not None
-                and album_name_similar_to_keyword in list(self.album_to_image_paths_dict.keys())):
+                and album_name_similar_to_keyword in self.album_to_image_paths_dict.keys()):
             image_list.update(set(self.album_to_image_paths_dict[album_name_similar_to_keyword]))
         return list(image_list)
 

@@ -8,7 +8,10 @@ class Vocab_Dictionary:
                             "nature": ["wild", "landscape"],
                             "sunset": ["sunrise", "golden hour", "sun"],
                             "day": ["sky"],
-                            "night": ["dark", "evening", "nighttime"]}
+                            "night": ["dark", "evening", "nighttime"],
+                            "portraits": ["portrait"],
+                            "pets": ["pet"],
+                            "cars": ["car", "vehicle", "vehicles", "auto"]}
 
     KEYWORD_RELATED_WORDS = { "forest": ["tree", "trees", "wood", "woods"] }
 
