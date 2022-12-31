@@ -13,7 +13,8 @@ class Vocab_Dictionary:
                             "pets": ["pet"],
                             "cars": ["car", "vehicle", "vehicles", "auto"]}
 
-    KEYWORD_RELATED_WORDS = { "forest": ["tree", "trees", "wood", "woods"] }
+    KEYWORD_RELATED_WORDS = { "forest": ["tree", "trees", "wood", "woods"],
+                              "person": ["people"]}
 
     def get_synonyms(self, word):
         synonyms = wordnet.synsets(word)
