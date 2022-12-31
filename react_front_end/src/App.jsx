@@ -5,7 +5,7 @@ import ImageGallery from "./components/ImageGallery";
 import ImageUploader from "./components/ImageUploader";
 import { BrowserRouter as Router, Route, Routes, useHistory, useNavigate} from "react-router-dom";
 import AlbumList from "./components/AlbumList";
-import AlbumSwitch from "./components/AlbumSwitch"
+import Message from "./components/Message";
 
 
 class App extends React.Component {
@@ -28,6 +28,7 @@ class App extends React.Component {
     albumLabelList: [], // list of string album labels
     currentAlbum: null, // current album. null when is not in album gallery
     AlbumImageList: [], // list of images in the current album
+    message: "", // message for any update / search / delete from the backend
   }
   
   /*
@@ -44,6 +45,8 @@ class App extends React.Component {
     this.setState({ uploadMessage: "" })
     // set current album back to null
     this.setState({ currentAlbum: null })
+    // empty message
+    this.setState({ message: "" })
   }
 
   /*
@@ -55,6 +58,7 @@ class App extends React.Component {
     this.setState({
       searchKeywords: event.target.value
     });
+    this.setState({ message: "" })
   }
   // When "Search" button is clicked - get search result and update imageList
   handleSearch = (keyword) => {
@@ -75,6 +79,7 @@ class App extends React.Component {
       .then((data) => {
         // response data
         console.log(data.condition)
+        this.setState({ message: data.condition })
         this.setState({ imageList: data.images })
         this.setState({ imageGalleryMessage: data.condition })
       })
@@ -141,6 +146,7 @@ class App extends React.Component {
       .then((data) => {
         // response data
         console.log(data.condition)
+        this.setState({ message: data.condition })
         this.setState({ imageList: data.updated_images })
         this.setState({ allImages: data.all_images })
         this.setState({ imageGalleryMessage: data.condition })
@@ -172,6 +178,7 @@ class App extends React.Component {
   }
   this.setState({ currentAlbum: null })
   this.setState({ imageList: [] })
+  this.setState({ message: "" })
  }
  // go to album in the albumList view
  handleAlbumClick = (index) => {
@@ -199,11 +206,15 @@ class App extends React.Component {
           }) 
   this.setState({ currentAlbum: selectedAlbum })
   console.log(`showing album: ${this.state.currentAlbum}`)
+  this.setState({ message: `Album: ${selectedAlbum}`})
  }
 
   /*
   Upload images
   */
+  handleUploadClick = () => {
+    this.setState({ message: "" })
+  }
   // When user select file from local - update uploadImageURLs with URLs of selected file
   handleImageUploadSelect = (event) => {
     // when file uploader input onChange: update state variable uploadImageFiles with only image files
@@ -296,7 +307,9 @@ class App extends React.Component {
           searchKeywords={this.state.searchKeywords}
           handleHomeClick={this.handleHomeClick}
           handleAlbumsClick={this.handleAlbumsClick}
+          handleUploadClick={this.handleUploadClick}
         />
+        <Message message={this.state.message} />
         <Routes>
           <Route exact path="/albums" element={
             <AlbumList

@@ -1,5 +1,6 @@
 import React from "react";
 import "./ImageGallery.css";
+import EditButtons from "./EditButtons";
 
 
 class ImageGallery extends React.Component {
@@ -13,11 +14,6 @@ class ImageGallery extends React.Component {
 
         return (
             <div>
-                <div className="btn-group edit-buttons " role="group" aria-label="Edit Buttons">
-                    <button type="button" className="btn btn-secondary opacity-80 bg-dark border-dark" onClick={this.props.updateSelect}>{this.props.selectEnabled ? "Unselect": "Select"}</button>
-                    <button type="button" className="btn btn-secondary opacity-80 bg-dark border-dark" onClick={this.props.handleDeleteImages}>Delete</button>
-                </div>
-                
                 <div className="image-gallery">
                     {this.props.imageList.map((imageURL, index) => {
                         return (
@@ -34,6 +30,13 @@ class ImageGallery extends React.Component {
                             </div>
                         )
                     })}
+                </div>
+                <div className="edit-buttons">
+                <EditButtons 
+                    selectEnabled={this.props.selectEnabled}
+                    updateSelect={this.props.updateSelect}
+                    handleDeleteImages={this.props.handleDeleteImages}   
+                />
                 </div>
             </div>
         );

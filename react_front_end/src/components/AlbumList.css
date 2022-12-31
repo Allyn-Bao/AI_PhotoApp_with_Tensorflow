@@ -1,6 +1,6 @@
 .album-list {
     display: grid;
-    padding-top: 60px;
+    padding-top: 5px;
     padding-left: 10px;
     padding-right: 10px;
     margin: 5px;
@@ -43,6 +43,6 @@
 }
 
 .album-gallery {
-    padding-top: 55px;
+    padding-top: 5px;
     margin-right: 0%;
 }

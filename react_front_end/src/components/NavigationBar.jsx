@@ -7,7 +7,7 @@ class NavigationBar extends React.Component {
 
     render() {
         return (
-            <Navbar  fixed="top" bg="dark" variant="dark" expand="lg">
+            <Navbar bg="dark" variant="dark" expand="lg">
                 <Container>
                     <Navbar.Brand>Photos</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
@@ -19,7 +19,7 @@ class NavigationBar extends React.Component {
                         >
                         <Nav.Link as={Link} to={"/"} onClick={this.props.handleHomeClick}>Home</Nav.Link>
                         <Nav.Link as={Link} to={"/albums"} onClick={this.props.handleAlbumsClick}>Albums</Nav.Link>
-                        <Nav.Link as={Link} to={"/add_photos"}>Add Photos</Nav.Link>
+                        <Nav.Link as={Link} to={"/add_photos"} onClick={this.props.handleUploadClick}>Add Photos</Nav.Link>
                     </Nav>
                         <Form className="d-flex">
                             <FormControl

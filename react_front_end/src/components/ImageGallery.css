@@ -1,6 +1,6 @@
 .image-gallery {
     display: grid;
-    padding-top: 20px;
+    padding-top: 5px;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 10px;
@@ -19,9 +19,9 @@
 
   .edit-buttons {
     position: fixed;
-    z-index: 1051;
-    top: 50%;
-    right: 50%;
+    z-index: 1;
+    bottom: 60px;
+    right: 10px;
   }
 
   .image-container {

@@ -33,19 +33,20 @@ class AlbumList extends React.Component {
                             </div>
                         )
                     })}
-                </div>
+                    </div>
                     
                     : 
+
                     <div className="album-gallery">
                     <ImageGallery
-              imageList={this.props.imageList}
-              selectEnabled={this.props.selectEnabled}
-              updateSelect={this.props.updateSelect}
-              handleSelectGalleryImage={this.props.handleSelectGalleryImage}
-              handleDeleteImages={this.props.handleDeleteImages}
-              imageGalleryMessage={this.props.imageGalleryMessage}
-            />
-            </div>
+                        imageList={this.props.imageList}
+                        selectEnabled={this.props.selectEnabled}
+                        updateSelect={this.props.updateSelect}
+                        handleSelectGalleryImage={this.props.handleSelectGalleryImage}
+                        handleDeleteImages={this.props.handleDeleteImages}
+                        imageGalleryMessage={this.props.imageGalleryMessage}
+                    />
+                    </div>
                 }
             </div>
         );
