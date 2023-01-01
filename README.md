@@ -24,6 +24,8 @@ The Photo app supports:
 - forest-recognition: categorize between [forest, other]
 - mountain-recognition: categorize between [mountain, other]
 
+Models trained with scripts here: https://github.com/Allyn-Bao/PhotoApp_Model_Training
+
 
 ### Built & Trained Convolutional Neural Nets
 
