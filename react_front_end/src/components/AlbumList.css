@@ -5,7 +5,7 @@
     padding-right: 10px;
     margin: 5px;
     grid-template-columns: repeat(3, 33%);
-    grid-template-rows: repeat(3, 33%);
+    grid-template-rows: repeat(5, 20%);
     grid-gap: 10px;
     align-items: flex-start;
     justify-content: center;
