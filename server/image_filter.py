@@ -57,6 +57,7 @@ class Image_Filter:
         """
         remove image path from system
         """
+        print(f"log - delete image: total images before: {len(self.image_path_to_labels_dict)}")
         if image not in self.image_path_to_labels_dict.keys():
             print(f"remove failed: image not exist {image}")
             return 1
@@ -64,24 +65,16 @@ class Image_Filter:
         labels = self.image_path_to_labels_dict[image]
         albums = labels[0]
         keywords = labels[1]
-        self.image_path_to_labels_dict = self.remove_image_from_label_dict(image)
         # remove from albums dict
         for album in albums:
             self.remove_image_to_list_of_values_in_dict(album, image, self.album_to_image_paths_dict)
         # remove from keyword dict
         for keyword in keywords:
             self.remove_image_to_list_of_values_in_dict(keyword, image, self.keyword_to_image_paths_dict)
+        # remove from label list
+        self.image_path_to_labels_dict.pop(image)
+        print(f"log - image deleted: total images after {len(self.image_path_to_labels_dict)}")
         return 0
-
-    def remove_image_from_label_dict(self, image):
-        """
-        remove image from image_to_label dict
-        """
-        new_dict = {}
-        for key, values in self.image_path_to_labels_dict.items():
-            if key != image:
-                new_dict[key] = values
-        return new_dict
 
     def get_images_from_album(self, album):
         """

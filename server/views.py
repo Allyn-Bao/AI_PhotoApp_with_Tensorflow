@@ -108,6 +108,7 @@ def get_images():
 @main.route("/get_albums", methods=['GET'])
 @cross_origin()
 def get_albums():
+    current_app.albums.update_album_covers(current_app.image_filter.album_to_image_paths_dict)
     album_covers = current_app.albums.get_album_covers()
     album_labels = current_app.albums.get_album_labels()
     return jsonify({"conditions": f"albums received",
